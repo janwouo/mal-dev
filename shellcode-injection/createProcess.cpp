@@ -1,9 +1,6 @@
 #include <Windows.h>
 #include <stdio.h>
-
-void okay(char *msg) { printf("[+] %s", msg); }
-void info(char *msg) { printf("[*] %s", msg); }
-void error(char *msg) { printf("[-] %s", msg); }
+#include "../utils/utility.h"
 
 
 int main(int argc, char const *argv[])
@@ -15,8 +12,7 @@ int main(int argc, char const *argv[])
     char msg[100];
 
      if (argc < 2){
-        sprintf(msg, "Usage %s <path to exe>\n", argv[0]);
-        info(msg);
+        MESSAGE(INFO, "Usage %s <path to exe>\n", argv[0]);
         return EXIT_SUCCESS;
     }
 
@@ -47,33 +43,39 @@ int main(int argc, char const *argv[])
         &si,
         &pi
     )){
-        okay((char*)"Process creation: Done!\n");
-        sprintf(msg, "Process PID: %d\n", pi.dwProcessId); okay(msg);
-        sprintf(msg, "Process TID: %d\n", pi.dwThreadId); okay(msg);
-        sprintf(msg, "Process Handle: 0x%p\n", pi.hProcess); okay(msg);
-        sprintf(msg, "Thread Handle: 0x%p\n", pi.hThread); okay(msg);
+        MESSAGE(OKAY, "Process creation: Done!\n");
+        MESSAGE(OKAY, "Process PID: %d\n", pi.dwProcessId);
+        MESSAGE(OKAY, "Process TID: %d\n", pi.dwThreadId); 
+        MESSAGE(OKAY, "Process Handle: 0x%p\n", pi.hProcess); 
+        MESSAGE(OKAY, "Thread Handle: 0x%p\n", pi.hThread); 
 
         // DWORD WaitForSingleObject(
         //   [in] HANDLE hHandle,
         //   [in] DWORD  dwMilliseconds
         // );
         DWORD hP = WaitForSingleObject(pi.hProcess, INFINITE);
-        //DWORD hT = WaitForSingleObject(pi.hThread, INFINITE);
+        DWORD hT = WaitForSingleObject(pi.hThread, INFINITE);
 
         if ( hT == WAIT_OBJECT_0 ) {
-            okay((char*)"Signal received by Process\n");
-            if ( !TerminateProcess(pi.hProcess, EXIT_SUCCESS) ){ sprintf(msg, "TerminateProcess failed (%d).\n", GetLastError() ); error(msg); } 
-            sprintf(msg, "Close hProcess: %d\n", CloseHandle(pi.hProcess)); okay(msg);
-            sprintf(msg, "Close hThread: %d\n", CloseHandle(pi.hThread)); okay(msg);
+            MESSAGE(OKAY, "Signal received by Process\n");
+            if ( !TerminateProcess(pi.hProcess, EXIT_SUCCESS) ){ 
+                MESSAGE(FAIL, "TerminateProcess failed (%d).\n", GetLastError() );
+            } 
+            MESSAGE(OKAY, "Close hProcess: %d\n", CloseHandle(pi.hProcess));
+            MESSAGE(OKAY, "Close hThread: %d\n", CloseHandle(pi.hThread)); 
         }else if ( hP == WAIT_TIMEOUT ){
-            okay((char*)"Time out on hProcess\n");
-            if ( !TerminateProcess(pi.hProcess, EXIT_SUCCESS) ){ sprintf(msg, "TerminateProcess failed (%d).\n", GetLastError()); error(msg); }
-            else okay((char*)"Terminate process: Done!\n");
-            sprintf(msg, "Close hProcess: %d\n", CloseHandle(pi.hProcess)); okay(msg);
-            sprintf(msg, "Close hThread: %d\n", CloseHandle(pi.hThread)); okay(msg);
+            MESSAGE(OKAY, "Time out on hProcess\n");
+            if ( !TerminateProcess(pi.hProcess, EXIT_SUCCESS) ){ 
+                MESSAGE(FAIL, "TerminateProcess failed (%d).\n", GetLastError()); 
+            }
+            else {
+                MESSAGE(OKAY, "Terminate process: Done!\n");
+            }
+            MESSAGE(OKAY, "Close hProcess: %d\n", CloseHandle(pi.hProcess));
+            MESSAGE(OKAY, "Close hThread: %d\n", CloseHandle(pi.hThread));
         }
     }
-    else { sprintf(msg, "CreateProcess failed (%d).\n", GetLastError() ); error(msg); }
+    else { MESSAGE(FAIL, "CreateProcess failed (%d).\n", GetLastError() ); }
     
     Sleep(2000);
 
