@@ -11,4 +11,3 @@
     #define PRINT_ERROR(X) fprintf(stderr, FAIL " " X " failed, error %ld : %s[line %d]", GetLastError(), __FILE__, __LINE__)
 
 #endif // __UTILITY_H__
-
