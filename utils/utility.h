@@ -1,5 +1,5 @@
-#if !defined(__UTILITY_H_)
-#define __UTILITY_H_
+#if !defined(__UTILITY_H__)
+#define __UTILITY_H__
 
     #define MAX_STRING 100
 
@@ -10,5 +10,4 @@
     #define MESSAGE(X, ...) printf(X " " __VA_ARGS__)
     #define PRINT_ERROR(X) fprintf(stderr, FAIL " " X " failed, error %ld : %s[line %d]", GetLastError(), __FILE__, __LINE__)
 
-#endif // __UTILITY_H_
-
+#endif // __UTILITY_H__
