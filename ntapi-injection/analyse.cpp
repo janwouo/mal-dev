@@ -17,7 +17,7 @@ int main(int argc, char const *argv[])
     }
     MESSAGE(OKAY, "Handle got for process(0x%p)\n", hProcess);
 
-    puts("Press <enter> to exit...");
+    MESSAGE(INFO, "Press <enter> to exit...\n");
     getchar();
     CloseHandle(hProcess);
     
