@@ -40,7 +40,7 @@ int main(int argc, char const *argv[])
     memcpy(func, exec, execSize);
     if (VirtualProtect(func, execSize, PAGE_EXECUTE_READWRITE, &oldProtection) == 0){
         MESSAGE(FAIL, "Impossible to change the protection of the allocated space in the current process\n");
-        PRINT_ERROR(WriteProcessMemory);
+        PRINT_ERROR(VirtualProtect);
         return EXIT_FAILURE;
     }
     MESSAGE(INFO, "Shellcode address: 0x%p\n", func);
