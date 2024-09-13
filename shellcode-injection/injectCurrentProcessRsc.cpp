@@ -3,6 +3,7 @@
 #include "..\utils\utility.h"
 #include "..\utils\resources.h"
 
+// g++ -m64  -o injectCurrentProcessRsc.exe injectCurrentProcessRsc.cpp ../utils/resources.o
 int main(int argc, char const *argv[])
 {
     DWORD   oldProtection;
