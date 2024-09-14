@@ -1,0 +1,4 @@
+#include "resources.h"
+
+// To compile resources.rc: windres -o resources.o -O COFF resources.rc
+RSC RCDATA  "calc.ico"

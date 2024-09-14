@@ -46,33 +46,33 @@ int main(int argc, char const *argv[])
         MESSAGE(OKAY, "Process creation: Done!\n");
         MESSAGE(OKAY, "Process PID: %d\n", pi.dwProcessId);
         MESSAGE(OKAY, "Process TID: %d\n", pi.dwThreadId); 
-        MESSAGE(OKAY, "Process Handle: 0x%p\n", pi.hProcess); 
-        MESSAGE(OKAY, "Thread Handle: 0x%p\n", pi.hThread); 
+        MESSAGE(OKAY, "Process Handle: 0x%p\n", pi.processHandle); 
+        MESSAGE(OKAY, "Thread Handle: 0x%p\n", pi.threadHandle); 
 
         // DWORD WaitForSingleObject(
         //   [in] HANDLE hHandle,
         //   [in] DWORD  dwMilliseconds
         // );
-        DWORD hP = WaitForSingleObject(pi.hProcess, INFINITE);
-        DWORD hT = WaitForSingleObject(pi.hThread, INFINITE);
+        DWORD hP = WaitForSingleObject(pi.processHandle, INFINITE);
+        DWORD hT = WaitForSingleObject(pi.threadHandle, INFINITE);
 
         if ( hT == WAIT_OBJECT_0 ) {
             MESSAGE(OKAY, "Signal received by Process\n");
-            if ( !TerminateProcess(pi.hProcess, EXIT_SUCCESS) ){ 
+            if ( !TerminateProcess(pi.processHandle, EXIT_SUCCESS) ){ 
                 MESSAGE(FAIL, "TerminateProcess failed (%d).\n", GetLastError() );
             } 
-            MESSAGE(OKAY, "Close hProcess: %d\n", CloseHandle(pi.hProcess));
-            MESSAGE(OKAY, "Close hThread: %d\n", CloseHandle(pi.hThread)); 
+            MESSAGE(OKAY, "Close processHandle: %d\n", CloseHandle(pi.processHandle));
+            MESSAGE(OKAY, "Close threadHandle: %d\n", CloseHandle(pi.threadHandle)); 
         }else if ( hP == WAIT_TIMEOUT ){
-            MESSAGE(OKAY, "Time out on hProcess\n");
-            if ( !TerminateProcess(pi.hProcess, EXIT_SUCCESS) ){ 
+            MESSAGE(OKAY, "Time out on processHandle\n");
+            if ( !TerminateProcess(pi.processHandle, EXIT_SUCCESS) ){ 
                 MESSAGE(FAIL, "TerminateProcess failed (%d).\n", GetLastError()); 
             }
             else {
                 MESSAGE(OKAY, "Terminate process: Done!\n");
             }
-            MESSAGE(OKAY, "Close hProcess: %d\n", CloseHandle(pi.hProcess));
-            MESSAGE(OKAY, "Close hThread: %d\n", CloseHandle(pi.hThread));
+            MESSAGE(OKAY, "Close processHandle: %d\n", CloseHandle(pi.processHandle));
+            MESSAGE(OKAY, "Close threadHandle: %d\n", CloseHandle(pi.threadHandle));
         }
     }
     else { MESSAGE(FAIL, "CreateProcess failed (%d).\n", GetLastError() ); }

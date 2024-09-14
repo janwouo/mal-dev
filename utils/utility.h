@@ -8,6 +8,6 @@
     #define FAIL "[!]"
 
     #define MESSAGE(X, ...) printf(X " " __VA_ARGS__)
-    #define PRINT_ERROR(X) fprintf(stderr, FAIL " " X " failed, error %ld : %s[line %d]", GetLastError(), __FILE__, __LINE__)
+    #define PRINT_ERROR(X) fprintf(stderr, FAIL " " #X " failed, error %ld : %s[line %d]", GetLastError(), __FILE__, __LINE__ - 3)
 
 #endif // __UTILITY_H__
