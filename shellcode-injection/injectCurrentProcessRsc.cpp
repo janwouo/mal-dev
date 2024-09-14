@@ -9,7 +9,7 @@ int main(int argc, char const *argv[])
     DWORD   oldProtection;
     HRSRC   res;
     HGLOBAL resLoaded;
-    HANDLE  hThread;
+    HANDLE  threadHandle;
     LPVOID  resAddr;
     LPVOID  func;
     size_t  resSize;
@@ -55,14 +55,14 @@ int main(int argc, char const *argv[])
     MESSAGE(INFO, "Press <enter> to continue...");
     getchar();
     //((void(*)())func)();
-    hThread = CreateThread(NULL, resSize, (LPTHREAD_START_ROUTINE)func, NULL, 0, NULL);
-    if ( hThread == NULL){
+    threadHandle = CreateThread(NULL, resSize, (LPTHREAD_START_ROUTINE)func, NULL, 0, NULL);
+    if ( threadHandle == NULL){
         MESSAGE(FAIL, "Impossible to create thread\n");
         PRINT_ERROR(CreateThread);
         return EXIT_FAILURE;
     }
     MESSAGE(OKAY, "Thread started\n");
-    WaitForSingleObject(hThread, INFINITE);
+    WaitForSingleObject(threadHandle, INFINITE);
 
     return EXIT_SUCCESS;
 }
