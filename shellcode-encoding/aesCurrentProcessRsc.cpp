@@ -53,8 +53,7 @@ int main(int argc, char const *argv[])
     CryptSetKeyParam(keyHandle, KP_MODE, (const BYTE*)CRYPT_MODE_CBC, 0);
 
     // Decrypt padded data
-    decrypted = (PUCHAR)VirtualAlloc(0, decryptedSize, MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE);
-    memcpy(decrypted, resAddr, decryptedSize);
+    allocateAndCopy(resAddr, decryptedSize, (LPVOID *)&decrypted);
     MESSAGE(OKAY, "Data to be decrypted at : 0x%p\n", decrypted);
     MESSAGE(INFO, "Press <enter> to decrypt...");
     getchar();
