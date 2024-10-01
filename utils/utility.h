@@ -15,5 +15,6 @@
     int allowAndExecute(LPVOID codeAddr, DWORD codeSize);
     int allocateAndCopyRemote(HANDLE processHandle, LPCVOID code, DWORD codeSize, LPVOID * remoteAddr);
     int allocateAndCopy(LPCVOID code, DWORD codeSize, LPVOID * remoteAddr);
+    int getAesImportedKey(ALG_ID aesAlgo, const BYTE* algoMode, LPVOID key, DWORD keySize, BYTE initializationVector[], HCRYPTKEY *keyHandle, HCRYPTPROV *cspHandle);
 
 #endif // __UTILITY_H__
