@@ -107,7 +107,8 @@ int allocateAndCopy(LPCVOID code, DWORD codeSize, LPVOID * remoteAddr){
         exit(EXIT_FAILURE);
     }
     MESSAGE(OKAY, "%ld bytes of memory successfully allocated\n", codeSize);
-
+    MESSAGE(INFO, "Press <enter> to copy data...");
+    getchar();
     // Write bytes(shellcode) to the allocated memory
     memcpy(*remoteAddr, code, codeSize);
     
@@ -129,7 +130,8 @@ int allocateAndCopyRemote(HANDLE processHandle, LPCVOID code, DWORD codeSize, LP
         exit(EXIT_FAILURE);
     }
     MESSAGE(OKAY, "%ld bytes of memory successfully allocate in the remote process\n", codeSize);
-
+    MESSAGE(INFO, "Press <enter> to copy data...");
+    getchar();
     // Write bytes(shellcode) to process allocated memory
     if (WriteProcessMemory(processHandle, *remoteAddr, code, codeSize, NULL) == 0){
         MESSAGE(FAIL, "Impossible to write data to the remote process\n");
