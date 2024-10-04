@@ -3,6 +3,15 @@
 #include "utility.h"
 
 
+int xorEncoding(PUCHAR code, DWORD codeSize, PUCHAR key, DWORD keySize, PUCHAR decoded){
+
+    for (int i=0; i < codeSize; i++){
+        decoded[i] = (UCHAR) code[i] ^ key[i % (keySize)];
+    }
+
+    return EXIT_SUCCESS;
+}
+
 int getResourceAddr(LPVOID *resAddr, DWORD *resSize, int intResource){
 
     HRSRC   res;

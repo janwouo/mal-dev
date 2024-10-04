@@ -42,9 +42,7 @@ int main(int argc, char const *argv[])
     MESSAGE(INFO, "Decoded address: 0x%p\n", decoded);
     MESSAGE(INFO, "Decoding...\n");
     // Decoding ...
-    for (int i=0; i < codeSize - 1; i++){
-        decoded[i] = (UCHAR) code[i] ^ key[i % (keySize - 1)];
-    }
+    xorEncoding((PUCHAR)code, codeSize - 1, (PUCHAR)key, keySize - 1, (PUCHAR)decoded);
     MESSAGE(OKAY, "Decoding done!\n");
 
     MESSAGE(INFO, "Trying to open remote process with (%ld)\n", pid);
