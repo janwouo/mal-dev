@@ -96,8 +96,7 @@ int allowAndExecuteRemote(HANDLE  processHandle, LPVOID remoteAddr, DWORD codeSi
 
 
 
-int allocateAndCopy(LPCVOID code, DWORD codeSize, LPVOID * remoteAddr){
-
+int allocateAndCopy(LPVOID * remoteAddr, LPCVOID code, DWORD codeSize){
 
     // Allocate bytes to process memory
     *remoteAddr = VirtualAlloc(NULL, codeSize, (MEM_COMMIT | MEM_RESERVE), PAGE_READWRITE);
@@ -119,8 +118,7 @@ int allocateAndCopy(LPCVOID code, DWORD codeSize, LPVOID * remoteAddr){
 
 
 
-int allocateAndCopyRemote(HANDLE processHandle, LPCVOID code, DWORD codeSize, LPVOID *remoteAddr){
-
+int allocateAndCopyRemote(HANDLE processHandle, LPVOID *remoteAddr, LPCVOID code, DWORD codeSize){
 
     // Allocate bytes to process memory
     *remoteAddr = VirtualAllocEx(processHandle, NULL, codeSize, (MEM_COMMIT | MEM_RESERVE), PAGE_READWRITE);

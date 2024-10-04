@@ -57,7 +57,7 @@ int main(int argc, char const *argv[])
     }
     MESSAGE(OKAY, "Handle got for process(%ld)\n", pid);
 
-    allocateAndCopyRemote(processHandle, (LPCVOID)decoded, decodedSize, &remoteAddr);
+    allocateAndCopyRemote(processHandle, &remoteAddr, (LPCVOID)decoded, decodedSize);
 
     allowAndExecuteRemote(processHandle, remoteAddr, decodedSize);
 

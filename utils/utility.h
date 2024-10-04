@@ -13,8 +13,8 @@
     int getResourceAddr(LPVOID *resAddr, DWORD *resSize, int intResource);
     int allowAndExecuteRemote(HANDLE  processHandle, LPVOID remoteAddr, DWORD codeSize);
     int allowAndExecute(LPVOID codeAddr, DWORD codeSize);
-    int allocateAndCopyRemote(HANDLE processHandle, LPCVOID code, DWORD codeSize, LPVOID * remoteAddr);
-    int allocateAndCopy(LPCVOID code, DWORD codeSize, LPVOID * remoteAddr);
+    int allocateAndCopyRemote( HANDLE processHandle, LPVOID * remoteAddr, LPCVOID code, DWORD codeSize);
+    int allocateAndCopy(LPVOID * remoteAddr, LPCVOID code, DWORD codeSize);
     int getAesImportedKey(ALG_ID aesAlgo, const BYTE* algoMode, LPVOID key, DWORD keySize, BYTE initializationVector[], HCRYPTKEY *keyHandle, HCRYPTPROV *cspHandle);
 
 #endif // __UTILITY_H__

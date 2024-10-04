@@ -23,7 +23,7 @@ int main(int argc, char const *argv[])
     getAesImportedKey(CALG_AES_256, (const BYTE*)CRYPT_MODE_CBC, (LPVOID)key, sizeof(key), initializationVector, &keyHandle, &cspHandle);
 
     // Allocate space for decrypted data
-    allocateAndCopy(resAddr, decryptedSize, (LPVOID *)&decrypted);
+    allocateAndCopy((LPVOID *)&decrypted, resAddr, decryptedSize);
     MESSAGE(OKAY, "Data to be decrypted at : 0x%p\n", decrypted);
 
     // Decrypt padded data
