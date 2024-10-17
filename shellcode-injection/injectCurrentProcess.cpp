@@ -43,7 +43,9 @@ int main(int argc, char const *argv[])
         PRINT_ERROR(VirtualProtect);
         return EXIT_FAILURE;
     }
-    MESSAGE(INFO, "Shellcode address: 0x%p\n", func);
+    MESSAGE(INFO, "Protection Successfully changed at: 0x%p\n", func);
+
+    MESSAGE(INFO, "Press <enter> to run bytes code...");
     getchar();
     ((void(*)())func)();
 
