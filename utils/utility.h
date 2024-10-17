@@ -26,5 +26,6 @@
     int allocateAndCopyRemote( HANDLE processHandle, LPVOID * remoteAddr, LPCVOID code, DWORD codeSize);
     int allocateAndCopy(LPVOID * remoteAddr, LPCVOID code, DWORD codeSize);
     int getAesImportedKey(ALG_ID aesAlgo, const BYTE* algoMode, LPVOID key, DWORD keySize, BYTE initializationVector[], HCRYPTKEY *keyHandle, HCRYPTPROV *cspHandle);
+    #define PRINT_ERROR(X) fprintf(stderr, FAIL " " #X " failed, error %ld : %s[line %d]", GetLastError(), __FILE__, __LINE__ - 3)
 
 #endif // __UTILITY_H__

