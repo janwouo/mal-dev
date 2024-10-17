@@ -45,7 +45,7 @@ int main(int argc, char const *argv[])
     }
     MESSAGE(INFO, "Protection Successfully changed at: 0x%p\n", func);
 
-    MESSAGE(INFO, "Press <enter> to run bytes code...")
+    MESSAGE(INFO, "Press <enter> to run bytes code...");
     getchar();
     ((void(*)())func)();
 
