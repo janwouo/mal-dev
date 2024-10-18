@@ -36,43 +36,8 @@ int main(int argc, char const *argv[])
     }
     MESSAGE(OKAY, "Process[%ld] opened: Handle got[0x%p]\n", pid, processHandle);
 
-    // LPVOID VirtualAllocEx(
-    //   [in]           HANDLE processHandle,
-    //   [in, optional] LPVOID lpAddress,
-    //   [in]           SIZE_T dwSize,
-    //   [in]           DWORD  flAllocationType,
-    //   [in]           DWORD  flProtect
-    // );
-
-    // Allocate bytes to process memory
+    // Allocate and copy the DLL path to the process
     allocateAndCopyRemote(processHandle, &paramAddr, (LPCVOID)dllPath, dllPathSize);
-    // paramAddr = VirtualAllocEx(processHandle, NULL, dllPathSize, (MEM_COMMIT | MEM_RESERVE), PAGE_READWRITE);
-    // if (paramAddr == NULL){
-    //     MESSAGE(FAIL, "Impossible to allocate memory in process[%ld]\n", pid);
-    //     PRINT_ERROR("VirtualAllocEx");
-    //     return EXIT_FAILURE;
-    // }
-    // MESSAGE(OKAY, "%ld bytes of memory successfully allocated in process[%ld]\n", dllPathSize, pid);
-
-    // // BOOL WriteProcessMemory(
-    // //   [in]  HANDLE  processHandle,
-    // //   [in]  LPVOID  lpBaseAddress,
-    // //   [in]  LPCVOID lpBuffer,
-    // //   [in]  SIZE_T  nSize,
-    // //   [out] SIZE_T  *lpNumberOfBytesWritten
-    // // );
-
-    // // Write bytes(dll path) to process allocated memory
-    // if (WriteProcessMemory(processHandle, paramAddr, dllPath, dllPathSize, NULL) == 0){
-    //     MESSAGE(FAIL, "Impossible to write dll path to process[%ld]\n", pid);
-    //     PRINT_ERROR("WriteProcessMemory");
-    //     return EXIT_FAILURE;
-    // }
-    // MESSAGE(OKAY, "DLL path \"%s\" successfully wrote in memory of process[%ld]\n", dllPath, pid);
-
-    // HMODULE GetModuleHandle(
-    //   [in, optional] LPCWSTR lpModuleName
-    // );
 
     // Get handle of kernl32 module
     moduleHandle = GetModuleHandle("kernel32");
