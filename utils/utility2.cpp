@@ -1,5 +1,6 @@
 #include <windows.h>
 #include <stdio.h>
+#include <TlHelp32.h>
 #include "utility.h"
 
 
@@ -214,4 +215,48 @@ int getAesImportedKey(ALG_ID aesAlgo, const BYTE* algoMode, LPVOID key, DWORD ke
     CryptSetKeyParam(*keyHandle, KP_MODE, algoMode, 0);
 
     return EXIT_SUCCESS;
+}
+
+
+int findProcessPID(const PCHAR processName){
+
+    HANDLE hSnapshot = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
+    if (hSnapshot == INVALID_HANDLE_VALUE){
+        exit(EXIT_FAILURE);
+    }
+
+    PROCESSENTRY32 pe32;
+    pe32.dwSize = sizeof(PROCESSENTRY32);
+
+    if(Process32First(hSnapshot, &pe32)){
+        do{
+            if (strcmp(processName, (const PCHAR)pe32.szExeFile) == 0){
+                CloseHandle(hSnapshot);
+                return pe32.th32ProcessID;
+            }
+        } while (Process32Next(hSnapshot, &pe32));
+    }
+
+    CloseHandle(hSnapshot);
+    return 0; 
+}
+
+
+int getProcessHandle(const PCHAR processName, HANDLE * processHandle, DWORD * pid){
+
+    *pid = findProcessPID(processName);
+
+    if (*pid != 0){
+
+        *processHandle = OpenProcess(PROCESS_ALL_ACCESS, false, *pid);
+        if (processHandle == NULL){
+            MESSAGE(FAIL, "Impossible to get handle of the process(%ld)\n", pid);
+            PRINT_ERROR(OpenProcess);
+            return EXIT_FAILURE;
+        }
+        MESSAGE(OKAY, "Handle got for process(%ld)\n", pid);
+
+    }
+    
+    return EXIT_FAILURE;
 }

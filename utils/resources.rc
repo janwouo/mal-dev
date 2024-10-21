@@ -3,3 +3,4 @@
 // To compile resources.rc: windres -o resources.o -O COFF resources.rc
 RSC         RCDATA  "calc.ico"
 RSC_AES     RCDATA  "calc.aes"
+RSC_XOR     RCDATA  "calc.xor"

