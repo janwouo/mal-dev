@@ -3,5 +3,6 @@
 
 #define RSC         100
 #define RSC_AES     101
+#define RSC_XOR     102
 
 #endif // __RESOURCES_H__
