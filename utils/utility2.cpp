@@ -68,7 +68,6 @@ int getMagicPlayer(PBYTE player, DWORD playerSize, LPVOID *realPlayer){
 }
 
 
-
 int allowAndExecute(LPVOID codeAddr, DWORD codeSize){
 
     DWORD       oldProtection;
